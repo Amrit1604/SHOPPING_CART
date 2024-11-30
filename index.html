@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Shopping Cart</title>
+    <link rel="stylesheet" href="index.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+    <link rel="manifest" href="/site.webmanifest">
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Rubik', sans-serif;
+        }
+
+        html, body {
+            height: 100%;
+            font-family: 'Rubik', sans-serif;
+            background-color: #ffffff;
+            background-image: url(https://png.pngtree.com/thumb_back/fh260/background/20231110/pngtree-abstract-light-colored-paint-texture-background-wallpaper-image_13802780.png);
+            background-size: cover;
+            background-repeat: no-repeat;
+            color: #333;
+            line-height: 1.6;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+            border: 5px solid #444;
+            padding: 10px;
+        }
+
+        .container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            max-width: 100%;
+            padding: 15px;
+            user-select: none;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+            border: 3px solid #444;
+            border-radius: 12px;
+        }
+
+        .container img {
+            width: 100%;
+            max-width: 450px;
+            height: auto;
+            object-fit: cover;
+            margin: 0 0 30px 0;
+            user-select: none;
+        }
+
+        input {
+            color: #000;
+            background-color: rgba(255, 255, 255, 0.1);
+            border: 2px solid #444;
+            padding: 12px;
+            border-radius: 12px;
+            font-size: 20px;
+            text-align: center;
+            margin-bottom: 15px;
+            transition: all 0.3s ease-in-out;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+            width: 100%;
+            max-width: 320px;
+        }
+
+        input:focus {
+            border-color: #F1C40F;
+            outline: none;
+            box-shadow: 0 0 10px #F1C40F;
+        }
+
+        button {
+            background-color: #F1C40F;
+            color: #000;
+            border: none;
+            padding: 12px;
+            margin-bottom: 15px;
+            border-radius: 12px;
+            font-size: 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.4);
+            width: 100%;
+            max-width: 320px;
+        }
+
+        button:hover {
+            background-color: #e67e22;
+            transform: scale(1.05);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.6);
+        }
+
+        ul {
+            list-style-type: none;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-wrap: wrap;
+            margin-top: 20px;
+            width: 100%;
+        }
+
+        ul li {
+            margin: 5px;
+            background-color: aliceblue;
+            padding: 15px;
+            box-shadow: 0px 1px 4px rgba(0, 0, 0, 0.3);
+            border-radius: 10px;
+            flex-grow: 1;
+            text-align: center;
+            font-size: 15px;
+            width: 100%;
+            max-width: 150px;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            overflow: hidden;
+        }
+
+        @media (max-width: 480px) {
+            body {
+                background-size: cover;
+                background-repeat: no-repeat;
+            }
+
+            .container {
+                margin-top: 80px;
+                margin-left: 20px;
+                margin-right: 20px;
+                padding: 10px;
+                max-width: 100%;
+            }
+
+            h1 {
+                font-size: 24px;
+                margin-bottom: 15px;
+            }
+
+            input {
+                font-size: 18px;
+                padding: 12px;
+                margin-bottom: 20px;
+            }
+
+            button {
+                font-size: 18px;
+                padding: 12px;
+                margin-bottom: 20px;
+            }
+
+            ul li {
+                font-size: 14px;
+                padding: 10px;
+                margin: 5px;
+                max-width: 120px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <img src="rb_8860.png" alt="Bread Image">
+        <input type="text" id="input" placeholder="Item Name" />
+        <input type="number" id="quantity" placeholder="Quantity" min="1" />
+        <button id="button">ADD TO CART</button>
+        <ul id="shopping-list"></ul>
+    </div>
+    <script src="index.js" type="module"></script>
+</body>
+
+</html>
