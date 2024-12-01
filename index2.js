@@ -1,5 +1,5 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-app.js";
-import { getDatabase, ref, push, onValue, remove, get, update } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-database.js";
+import { getDatabase, ref, push, onValue, remove, update } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-database.js";
 
 // Firebase Configuration
 const appSettings = {
@@ -51,8 +51,7 @@ addButtonEl.addEventListener("click", function () {
             category,
             addedBy,
             status: "not-bought",
-            boughtTime: null,
-            boughtBy: null
+            boughtTime: null // Initially, no bought time
         });
 
         inputFieldEl.value = "";
@@ -83,42 +82,23 @@ onValue(shoppingListInDB, function (snapshot) {
 // Render Item
 function renderItem(id, item) {
     const li = document.createElement("li");
-    li.id = id;
-    // Add green background when bought
-    li.classList.add("shopping-item");
-    if (item.status === "bought") {
-        li.classList.add("item-bought");
-    }
-    
-    // Always show bought details if item is bought
-    const boughtDetailsHtml = item.status === "bought" ? `
-        <div class="bought-details">
-            <p class="bought-time">Bought at: ${item.boughtTime || 'Unknown time'}</p>
-            <p class="bought-by">Bought by: ${item.boughtBy || 'Unknown buyer'}</p>
+    li.id = id; // Set the ID for easy reference
+    li.classList.add("shopping-item"); // Add a class for styling
+    li.innerHTML = `
+        <div class="item-details">
+            <strong>${item.name}</strong> (${item.quantity}) - ${item.category} <br>
+            <small class="item-meta">Added by: ${item.addedBy}</small>
         </div>
-    ` : '';
-
-    // Add space between buttons
-    const buttonsHtml = `
-        <div class="item-actions">
+        <div>
             <button class="status-button ${item.status === "bought" ? "bought" : ""}">
                 ${item.status === "bought" ? "Bought" : "Mark as Bought"}
             </button>
             ${localStorage.getItem("familyMember") === item.addedBy
-                ? `<span class="button-spacer"></span>
-                   <button class="remove-item">Remove</button>`
+                ? `<button class="remove-item">Remove</button>`
                 : ""
             }
         </div>
-    `;
-
-    li.innerHTML = `
-        <div class="item-details">
-            <strong>${item.name}</strong> (${item.quantity}) - ${item.category} <br>
-            <small class="item-meta">Added by: <span class="added-by">${item.addedBy}</span></small>
-        </div>
-        ${buttonsHtml}
-        ${boughtDetailsHtml}
+        ${item.status === "bought" ? `<p class="bought-time">Bought at: ${item.boughtTime}</p>` : ""}
     `;
 
     const statusBtn = li.querySelector(".status-button");
@@ -128,79 +108,43 @@ function renderItem(id, item) {
     statusBtn.addEventListener("click", () => {
         const newStatus = item.status === "bought" ? "not-bought" : "bought";
         const boughtTime = newStatus === "bought" ? new Date().toLocaleString() : null;
-        const boughtBy = newStatus === "bought" ? localStorage.getItem("familyMember") : null;
-        updateItemStatus(id, newStatus, boughtTime, boughtBy);
+        updateItemStatus(id, newStatus, boughtTime);
     });
 
     // Remove Item (only if added by the current user)
     if (removeBtn) {
-        removeBtn.addEventListener("click", () => removeItem(id, item.addedBy));
+        removeBtn.addEventListener("click", () => removeItem(id));
     }
 
     shoppingListEl.appendChild(li);
 }
 
-// Update Item Status in Firebase
-function updateItemStatus(id, status, boughtTime, boughtBy) {
+// Update Item Status in Firebase and Animation
+function updateItemStatus(id, status, boughtTime) {
     const itemRef = ref(database, `shoppingList/${id}`);
-    update(itemRef, { status, boughtTime, boughtBy });
+    update(itemRef, { status, boughtTime });
+
+    // Get the updated item element
+    const itemElement = document.getElementById(id);
+    const statusBtn = itemElement.querySelector(".status-button");
+    const boughtTimeEl = itemElement.querySelector(".bought-time");
+
+    // Add animation and update button text and color
+    if (status === "bought") {
+        itemElement.classList.add("bought-item"); // Add class for animation
+        statusBtn.textContent = "Bought";
+        statusBtn.classList.add("bought");
+        boughtTimeEl.textContent = `Bought at: ${boughtTime}`;
+    } else {
+        itemElement.classList.remove("bought-item");
+        statusBtn.textContent = "Mark as Bought";
+        statusBtn.classList.remove("bought");
+        boughtTimeEl.textContent = "";
+    }
 }
 
 // Remove Item from Firebase
-async function removeItem(id, addedBy) {
-    // Extra verification to ensure only the person who added the item can remove it
-    const currentUser = localStorage.getItem("familyMember");
-    
-    if (currentUser !== addedBy) {
-        alert("You can only remove items you've added!");
-        return;
-    }
-
-    try {
-        const itemRef = ref(database, `shoppingList/${id}`);
-        await remove(itemRef);
-        console.log(`Item ${id} removed successfully`);
-    } catch (error) {
-        console.error("Error removing item:", error);
-        alert("Failed to remove item. Please try again.");
-    }
+function removeItem(id) {
+    const itemRef = ref(database, `shoppingList/${id}`);
+    remove(itemRef);
 }
-
-// Recommended CSS to add to your stylesheet
-const styleElement = document.createElement('style');
-styleElement.textContent = `
-    .shopping-item {
-        transition: all 0.3s ease;
-        margin-bottom: 10px;
-        padding: 10px;
-        border-radius: 5px;
-        position: relative;
-    }
-
-    .shopping-item.item-bought {
-        background-color: #4CAF50; /* Green background */
-        color: white; /* White text */
-    }
-
-    .item-bought .item-meta,
-    .item-bought strong,
-    .item-bought .item-details {
-        color: white !important;
-    }
-
-    .item-bought .status-button {
-        background-color: white;
-        color: #4CAF50;
-    }
-
-    .item-bought .remove-item {
-        background-color: #45a049;
-        color: white;
-    }
-
-    .bought-details {
-        margin-top: 10px;
-        font-size: 0.9em;
-    }
-`;
-document.head.appendChild(styleElement);
